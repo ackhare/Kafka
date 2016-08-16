@@ -1,14 +1,10 @@
 /**
  * Created by chetan on 8/8/16.
  */
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
@@ -16,30 +12,17 @@ import kafka.producer.ProducerConfig;
  * Created by user on 8/4/14.
  */
 public class HelloKafkaProducer {
-    final static String TOPIC = "javatest";
+    final static String TOPIC = "py";
 
 
-
-
-    public static void main(String[] argv) throws IOException {
+    public static void main(String[] argv){
         Properties properties = new Properties();
         properties.put("metadata.broker.list","localhost:9092");
-        properties.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
-        properties.put("value.serializer","org.apache.kafka.common.serialization.ByteArraySerializer");
-        ProducerConfig producerConfig=new ProducerConfig(properties);
-        Producer<String,byte[]> producer = new Producer<String, byte[]>(producerConfig);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        try {
-            oos.writeObject("djkvbsfbvk");
-        } finally {
-            oos.close();
-        }
-
-        byte[] bytes = baos.toByteArray();
+        properties.put("serializer.class","kafka.serializer.StringEncoder");
+        ProducerConfig producerConfig = new ProducerConfig(properties);
+        kafka.javaapi.producer.Producer<String,String> producer = new kafka.javaapi.producer.Producer<String, String>(producerConfig);
         SimpleDateFormat sdf = new SimpleDateFormat();
-        KeyedMessage<String, byte[]> message =new KeyedMessage<String, byte[]>(TOPIC,bytes);
+        KeyedMessage<String, String> message =new KeyedMessage<String, String>(TOPIC,"Test message from java program " + sdf.format(new Date()));
         producer.send(message);
         producer.close();
     }

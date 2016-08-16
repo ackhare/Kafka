@@ -27,7 +27,7 @@ import kafka.message.MessageAndOffset;
  */
 public class HelloKafkaConsumer extends  Thread {
     final static String clientId = "SimpleConsumerDemoClient";
-    final static String TOPIC = "javatest";
+    final static String TOPIC = "py";
     ConsumerConnector consumerConnector;
 
 
@@ -36,10 +36,10 @@ public class HelloKafkaConsumer extends  Thread {
         helloKafkaConsumer.start();
     }
 
-    public HelloKafkaConsumer() {
+    public HelloKafkaConsumer(){
         Properties properties = new Properties();
-        properties.put("zookeeper.connect", "localhost:2181");
-        properties.put("group.id", "test-group");
+        properties.put("zookeeper.connect","localhost:2181");
+        properties.put("group.id","test-group");
         ConsumerConfig consumerConfig = new ConsumerConfig(properties);
         consumerConnector = Consumer.createJavaConsumerConnector(consumerConfig);
     }
@@ -49,41 +49,12 @@ public class HelloKafkaConsumer extends  Thread {
         Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
         topicCountMap.put(TOPIC, new Integer(1));
         Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumerConnector.createMessageStreams(topicCountMap);
-        KafkaStream<byte[], byte[]> stream = consumerMap.get(TOPIC).get(0);
+        KafkaStream<byte[], byte[]> stream =  consumerMap.get(TOPIC).get(0);
         ConsumerIterator<byte[], byte[]> it = stream.iterator();
-        ByteArrayInputStream bais = null;
-        while (it.hasNext()) {
+        while(it.hasNext())
+            System.out.println(new String(it.next().message()));
 
-            bais = new ByteArrayInputStream(it.next().message());
-            ObjectInputStream ois = null;
-            try {
-                ois = new ObjectInputStream(bais);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String recordTime = null;
-
-            try {
-                try {
-                    recordTime = (String) ois.readObject();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            } finally {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-            System.out.println(recordTime);
-
-        }}
-
+    }
 
     private static void printMessages(ByteBufferMessageSet messageSet) throws UnsupportedEncodingException {
         for(MessageAndOffset messageAndOffset: messageSet) {
